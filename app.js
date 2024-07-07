@@ -15,11 +15,11 @@ app.use(cookieParser());
 app.get("/", (req, res) => {
   res.render("index");
 });
-app.get("/login", (req, res) => {
+app.get("/login", isLoogedIn, (req, res) => {
   res.render("login");
 });
 
-app.get("/profile", isLoogedIn, (req, res) => {
+app.get("/profile", (req, res) => {
     console.log(req.user);
   res.render("login");
 });
@@ -68,14 +68,9 @@ app.post("/register", async (req, res) => {
 });
 
 function isLoogedIn(res, req, next){
-  if(req.cookies.token === "") res.send("you must be login");
-  else {
-    let data = jwt.verify(req.cookies.token, "talha");
-    req.user = data;
-    next();
+ console.log(req.cookies);
+ next()
   }
-
-}
 
 app.listen(port, () => {
   console.log(`app listening on port ${port}`);
