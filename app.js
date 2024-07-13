@@ -19,47 +19,46 @@ app.get("/login", (req, res) => {
   res.render("login");
 });
 
-app.get("/profile", isLoogedIn, async(req, res) => {
-let user = await userModel.findOne({email :req.user.email}).populate("posts")
-  res.render("profile", {user});
+app.get("/profile", isLoogedIn,  async (req, res) => {
+  let user = await userModel.findOne({ email: req.user.email }).populate("posts")
+  res.render("profile", { user });
 });
-app.post("/post", isLoogedIn, async(req, res) => {
-  let user = await userModel.findOne({email :req.user.email})
-   let { content } = req.body
+app.post("/post", isLoogedIn, async (req, res) => {
+  let user = await userModel.findOne({ email: req.user.email });
+  let { content } = req.body;
 
-let post = await postModel.create({
-  user : user._id,
-  content
-})
-user.posts.push(post._id)
-await user.save()
-res.redirect("/profile")
+  let post = await postModel.create({
+    user: user._id,
+    content
   });
+  user.posts.push(post._id);
+  await user.save();
+  res.redirect("/profile");
+});
 
 app.get("/logout", (req, res) => {
   res.cookie("token", "");
- res.redirect("/login")
+  res.redirect("/login");
 });
 app.post("/login", async (req, res) => {
   let { email, password } = req.body;
 
-  let user = await userModel.findOne({email});
+  let user = await userModel.findOne({ email });
   if (!user) return res.status(500).json("something went wrong");
 
   bcrypt.compare(password, user.password, function (err, result) {
     if (result) {
       let token = jwt.sign({ email: email, userid: user._id }, "talha");
       res.cookie("token", token);
-      res.status(500).redirect("/profile")
-    } 
-    else res.redirect("/login");
+      res.status(500).redirect("/profile");
+    } else res.redirect("/login");
   });
 });
 
 app.post("/register", async (req, res) => {
   let { username, name, email, age, password } = req.body;
 
-  let user = await userModel.findOne({email});
+  let user = await userModel.findOne({ email });
   if (user) return res.send(500).json("email already exits");
 
   bcrypt.genSalt(10, (err, salt) => {
@@ -79,17 +78,13 @@ app.post("/register", async (req, res) => {
   });
 });
 
-
-
-
-function isLoogedIn(req, res, next){
-if(req.cookies.token == "") res.redirect("/login")
-  else{
-let data = jwt.verify(req.cookies.token , "talha");
-req.user = data;
-next()
+function isLoogedIn(req, res, next) {
+  if (req.cookies.token == "") res.redirect("/login");
+  else {
+    let data = jwt.verify(req.cookies.token, "talha");
+    req.user = data;
+    next();
   }
-
 }
 
 app.listen(port, () => {
