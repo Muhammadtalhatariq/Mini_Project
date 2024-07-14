@@ -6,29 +6,14 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const userModel = require("./models/user");
 const postModel = require("./models/post");
-const multer = require("multer");
-const crypto = require("crypto");
-const path = require("path")
-
+const path = require("path");
+const uplord = require("./config/multer");
 
 app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "./public/images/uplords");
-  },
-  filename: function (req, file, cb) {
-    crypto.randomBytes(12, function (err, bytes) {
-      const fn = bytes.toString("hex") + path.extname(file.originalname);
-      cb(null, fn);
-    });
-  },
-});
-const upload = multer({ storage: storage });
+app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/", (req, res) => {
   res.render("index");
@@ -36,12 +21,15 @@ app.get("/", (req, res) => {
 app.get("/login", (req, res) => {
   res.render("login");
 });
-app.get("/text", (req, res) => {
-  res.render("text");
+app.get("/profile/uplord", (req, res) => {
+  res.render("profileUplord");
 });
-
-app.post("/uplord", upload.single("image"), function (req, res, next) {
-  console.log(req.file);
+app.post("/uplord", isLoogedIn, uplord.single("image"), async (req, res) => {
+  let user = await userModel.findOne({ email: req.user.email });
+  user.profilepic = req.file.filename;
+  await user.save();
+  console.log(user);
+  res.redirect("/profile");
 });
 
 app.get("/profile", isLoogedIn, async (req, res) => {
