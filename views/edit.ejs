@@ -11,21 +11,27 @@
       <div class="flex justify-end w-full">
         <a class="bg-green-500 p-2 rounded-xl" href="/logout">logout</a>
       </div>
-     
-      <h4 class="text-2xl">yor can create a new post</h4>
 
-      <form action="/update/<%= post._id %>" method="post">
-        <textarea
-          class="bg-transparent pt-4 outline-none w-1/3 resize-none"
-          name="content"
-          placeholder="what on your mind ?"
-        ><%= post.content %></textarea>
-        <input
-          class="bg-orange-500 p-2 outline-none block rounded-xl"
-          type="submit"
-          value="update post"
-        />
-      </form>
+      <h4 class="text-4xl pb-4 text-center">yor can update a new post</h4>
+      <div class="flex flex-wrap justify-center pt-10 ">
+        <div class=" w-1/3">
+          <form class="flex flex-wrap justify-center" action="/update/<%= post._id %>" method="post">
+            <textarea
+              class="bg-transparent pt-4 border-b-2 border-zinc-500 outline-none w-full resize-none"
+              name="content"
+              placeholder="what on your mind ?"
+            >
+           <%= post.content %></textarea
+            >
+            <input
+              class="bg-orange-500 item-center hover:bg-orange-700 p-2 mt-4 outline-none block rounded-xl"
+              type="submit"
+              value="update post"
+            />
+          </form>
+        </div>
+       
+      </div>
     </div>
   </body>
 </html>

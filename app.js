@@ -6,17 +6,42 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const userModel = require("./models/user");
 const postModel = require("./models/post");
+const multer = require("multer");
+const crypto = require("crypto");
+const path = require("path")
+
 
 app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./public/images/uplords");
+  },
+  filename: function (req, file, cb) {
+    crypto.randomBytes(12, function (err, bytes) {
+      const fn = bytes.toString("hex") + path.extname(file.originalname);
+      cb(null, fn);
+    });
+  },
+});
+const upload = multer({ storage: storage });
+
 app.get("/", (req, res) => {
   res.render("index");
 });
 app.get("/login", (req, res) => {
   res.render("login");
+});
+app.get("/text", (req, res) => {
+  res.render("text");
+});
+
+app.post("/uplord", upload.single("image"), function (req, res, next) {
+  console.log(req.file);
 });
 
 app.get("/profile", isLoogedIn, async (req, res) => {
@@ -38,14 +63,15 @@ app.get("/like/:id", isLoogedIn, async (req, res) => {
 });
 app.get("/edit/:id", isLoogedIn, async (req, res) => {
   let post = await postModel.findOne({ _id: req.params.id }).populate("user");
-res.render("edit", {post})
- 
+  res.render("edit", { post });
 });
 
 app.post("/update/:id", isLoogedIn, async (req, res) => {
-  let post = await postModel.findOneAndUpdate({ _id: req.params.id }, {content : req.body.content})
-res.redirect("/profile" )
- 
+  let post = await postModel.findOneAndUpdate(
+    { _id: req.params.id },
+    { content: req.body.content }
+  );
+  res.redirect("/profile");
 });
 
 app.post("/post", isLoogedIn, async (req, res) => {
