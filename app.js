@@ -28,7 +28,6 @@ app.post("/uplord", isLoogedIn, uplord.single("image"), async (req, res) => {
   let user = await userModel.findOne({ email: req.user.email });
   user.profilepic = req.file.filename;
   await user.save();
-  console.log(user);
   res.redirect("/profile");
 });
 
@@ -112,7 +111,7 @@ app.post("/register", async (req, res) => {
 
       let token = jwt.sign({ email: email, userid: user._id }, "talha");
       res.cookie("token", token);
-      res.send("register user");
+      res.redirect("/login");
     });
   });
 });
